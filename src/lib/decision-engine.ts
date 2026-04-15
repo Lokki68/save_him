@@ -1,4 +1,5 @@
 import { Assessment, UrgencyLevel } from "@/types/assessment";
+import {GESTURES} from "@/data/gesture";
 
 export interface DecisionResult {
   urgencyLevel: UrgencyLevel
@@ -65,7 +66,7 @@ export function analyzeAssessment(assessment: Assessment): DecisionResult {
 
     // Suspicion AVC
     if (
-        malaiseDetails.facialAsymetry ||
+        malaiseDetails.facialAsymmetry ||
         malaiseDetails.speechDifficulty ||
         malaiseDetails.armWeakness
     ) {

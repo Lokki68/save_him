@@ -33,10 +33,10 @@ export interface VictimInfo {
 export interface Assessment {
   // Situation
   situationType: SituationType | null
-  situtationDescription: string
+  situationDescription: string
 
   // Victime
-  victimeInfo: VictimInfo
+  victimInfo: VictimInfo
 
   // Conscience
   consciousnessLevel: ConsciousnessLevel | null
@@ -58,7 +58,7 @@ export interface Assessment {
   malaiseDetails: {
     chestPain: boolean
     radiatingPain: boolean
-    facialAsymetry: boolean
+    facialAsymmetry: boolean
     speechDifficulty: boolean
     armWeakness: boolean
     diabetic: boolean | null
