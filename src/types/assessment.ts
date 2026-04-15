@@ -39,7 +39,7 @@ export interface Assessment {
   victimeInfo: VictimInfo
 
   // Conscience
-  consciousessLevel: ConsciousnessLevel | null
+  consciousnessLevel: ConsciousnessLevel | null
   respondsToVoice: boolean | null
   respondsToPain: boolean | null
 
@@ -64,7 +64,7 @@ export interface Assessment {
     diabetic: boolean | null
   }
 
-  bleddingDetails: {
+  bleedingDetails: {
     isImportant: boolean
     location: string
     isControlled: boolean
@@ -73,7 +73,7 @@ export interface Assessment {
   // Environment
   environment: {
     isSafe: boolean
-    numberOfVictime: number
+    numberOfVictims: number
     rescuerLocation: string
     nearestAddress: string
   }
