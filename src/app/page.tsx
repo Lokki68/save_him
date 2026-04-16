@@ -79,7 +79,7 @@ export default function Home() {
           </div>
           <div>
             <h1 className="text-base font-bold text-gray-900 leading-tight">
-              SecourGuide
+              SaveHim
             </h1>
             <p className="text-xs text-gray-500">Guide premiers secours</p>
           </div>
