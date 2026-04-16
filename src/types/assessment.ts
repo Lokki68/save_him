@@ -1,6 +1,6 @@
 export type ConsciousnessLevel =
   | 'conscious_alert'
-  | 'conscious_counfused'
+  | 'conscious_confused'
   | 'unconscious'
   | 'unknown'
 

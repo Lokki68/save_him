@@ -1,8 +1,9 @@
-
 import { useState, useCallback } from "react";
-import { Assessment, UrgencyLevel } from "@/types/assessment";
+import { Assessment } from "@/types/assessment";
 import { analyzeAssessment, DecisionResult } from "@/lib/decision-engine";
 import { generateEmergencyMessage } from "@/lib/message-generator";
+
+export const TOTAL_STEPS = 6;
 
 const INITIAL_ASSESSMENT: Assessment = {
   situationType: null,
@@ -47,47 +48,59 @@ const INITIAL_ASSESSMENT: Assessment = {
   emergencyMessage: "",
 };
 
-export const TOTAL_STEPS = 6;
-
 export function useAssessment() {
   const [currentStep, setCurrentStep] = useState(1);
   const [assessment, setAssessment] = useState<Assessment>(INITIAL_ASSESSMENT);
   const [decision, setDecision] = useState<DecisionResult | null>(null);
 
-  const updateAssessment = useCallback(
-      (updates: Partial<Assessment>) => {
-        setAssessment((prev) => ({ ...prev, ...updates }));
-      },
-      []
-  );
+  const updateAssessment = useCallback((updates: Partial<Assessment>) => {
+    setAssessment((prev) => ({
+      ...prev,
+      ...updates,
+      // Deep merge pour les objets imbriqués
+      victimInfo: updates.victimInfo
+          ? { ...prev.victimInfo, ...updates.victimInfo }
+          : prev.victimInfo,
+      traumaDetails: updates.traumaDetails
+          ? { ...prev.traumaDetails, ...updates.traumaDetails }
+          : prev.traumaDetails,
+      malaiseDetails: updates.malaiseDetails
+          ? { ...prev.malaiseDetails, ...updates.malaiseDetails }
+          : prev.malaiseDetails,
+      bleedingDetails: updates.bleedingDetails
+          ? { ...prev.bleedingDetails, ...updates.bleedingDetails }
+          : prev.bleedingDetails,
+      environment: updates.environment
+          ? { ...prev.environment, ...updates.environment }
+          : prev.environment,
+    }));
+  }, []);
 
   const nextStep = useCallback(() => {
-    if (currentStep < TOTAL_STEPS) {
-      setCurrentStep((prev) => prev + 1);
-    }
-  }, [currentStep]);
+    setCurrentStep((prev) => Math.min(prev + 1, TOTAL_STEPS));
+  }, []);
 
   const prevStep = useCallback(() => {
-    if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
-    }
-  }, [currentStep]);
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  }, []);
 
   const goToStep = useCallback((step: number) => {
-    setCurrentStep(step);
+    setCurrentStep(Math.min(Math.max(step, 1), TOTAL_STEPS));
   }, []);
 
   const finalize = useCallback(() => {
     const result = analyzeAssessment(assessment);
     const message = generateEmergencyMessage(assessment, result);
 
-    setDecision(result);
-    setAssessment((prev) => ({
-      ...prev,
+    const finalAssessment = {
+      ...assessment,
       urgencyLevel: result.urgencyLevel,
       recommendedGestures: result.recommendedGestures,
       emergencyMessage: message,
-    }));
+    };
+
+    setAssessment(finalAssessment);
+    setDecision(result);
     setCurrentStep(TOTAL_STEPS);
   }, [assessment]);
 
@@ -96,6 +109,30 @@ export function useAssessment() {
     setDecision(null);
     setCurrentStep(1);
   }, []);
+
+  // Calcul de la validité de chaque étape
+  const isStepValid = useCallback(
+      (step: number): boolean => {
+        switch (step) {
+          case 1:
+            return assessment.situationType !== null;
+          case 2:
+            return (
+                assessment.victimInfo.approximateAge !== undefined &&
+                assessment.victimInfo.gender !== undefined
+            );
+          case 3:
+            return assessment.consciousnessLevel !== null;
+          case 4:
+            return assessment.breathingStatus !== null;
+          case 5:
+            return assessment.environment.nearestAddress.trim().length > 0;
+          default:
+            return true;
+        }
+      },
+      [assessment]
+  );
 
   return {
     currentStep,
@@ -107,5 +144,7 @@ export function useAssessment() {
     goToStep,
     finalize,
     reset,
+    isStepValid,
+    TOTAL_STEPS,
   };
 }
